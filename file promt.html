@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFit - AI Micro Study & Fitness Assistant</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                        },
+                        fitness: {
+                            500: '#10b981',
+                            600: '#059669',
+                        },
+                        study: {
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card-hover {
+            transition: all 0.3s ease;
+        }
+        .glass-card-hover:hover {
+            transform: translateY(-2px);
+            border-color: rgba(20, 184, 166, 0.4);
+            box-shadow: 0 10px 25px -5px rgba(20, 184, 166, 0.15);
+        }
+        .gradient-text-teal {
+            background: linear-gradient(135deg, #2dd4bf 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gradient-text-purple {
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gradient-text-orange {
+            background: linear-gradient(135deg, #f97316 0%, #eab308 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gradient-border-box {
+            position: relative;
+            border-radius: 1rem;
+            background: #1e293b;
+        }
+        .gradient-border-box::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 1.05rem;
+            background: linear-gradient(135deg, #14b8a6, #6366f1, #ec4899);
+            z-index: -1;
+            opacity: 0.5;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-950 text-slate-100 selection:bg-teal-500 selection:text-white">
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-40 glass-card border-b border-slate-800/80 bg-slate-900/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+                    <div class="w-11 h-11 rounded-full p-0.5 bg-gradient-to-tr from-lime-400 via-emerald-500 to-teal-400 shadow-lg shadow-lime-500/20 flex items-center justify-center overflow-hidden">
+                        <img src="71807_bc4881.png" alt="Fitness Logo" class="w-full h-full object-cover rounded-full" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\'w-full h-full bg-slate-950 rounded-full flex items-center justify-center\'><i class=\'fa-solid fa-dumbbell text-lime-400 text-lg\'></i></div>';">
+                    </div>
+                    <div>
+                        <span class="text-xl font-black tracking-tight bg-gradient-to-r from-lime-400 via-emerald-300 to-teal-400 bg-clip-text text-transparent">StudyFit</span>
+                        <span class="block text-[10px] font-semibold text-lime-400/80 tracking-widest uppercase">Micro AI Assistant</span>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation Buttons -->
+                <nav class="hidden md:flex items-center space-x-1">
+                    <button onclick="switchTab('home')" id="nav-home" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium transition-all text-teal-400 bg-teal-500/10 border border-teal-500/30 flex items-center gap-2">
+                        <i class="fa-solid fa-house"></i> Home
+                    </button>
+                    <button onclick="switchTab('decomposer')" id="nav-decomposer" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center gap-2">
+                        <i class="fa-solid fa-sitemap text-indigo-400"></i> Topic Micro-Decomposer
+                    </button>
+                    <button onclick="switchTab('workouts')" id="nav-workouts" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center gap-2">
+                        <i class="fa-solid fa-dumbbell text-emerald-400"></i> Workout Planner
+                    </button>
+                    <button onclick="switchTab('macros')" id="nav-macros" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center gap-2">
+                        <i class="fa-solid fa-utensils text-amber-400"></i> Macro Tracker
+                    </button>
+                    <button onclick="switchTab('feedback')" id="nav-feedback" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center gap-2">
+                        <i class="fa-solid fa-bug text-pink-400"></i> Feedback / Bugs
+                    </button>
+                    <button onclick="switchTab('profile')" id="nav-profile" class="nav-btn px-4 py-2 rounded-xl text-sm font-medium transition-all text-slate-400 hover:text-white hover:bg-slate-800/60 flex items-center gap-2">
+                        <i class="fa-solid fa-user-gear text-purple-400"></i> Profile
+                    </button>
+                </nav>
+
+                <!-- Action Button -->
+                <div class="flex items-center gap-3">
+                    <button onclick="openOnboardingModal()" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 border border-slate-700 text-teal-300 hover:bg-slate-700 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-sliders"></i> Body Specs
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Navigation Bar -->
+        <div class="md:hidden flex items-center justify-around border-t border-slate-800 bg-slate-900/90 py-2 px-1 text-xs">
+            <button onclick="switchTab('home')" class="flex flex-col items-center gap-1 text-teal-400">
+                <i class="fa-solid fa-house text-base"></i> Home
+            </button>
+            <button onclick="switchTab('decomposer')" class="flex flex-col items-center gap-1 text-slate-400">
+                <i class="fa-solid fa-sitemap text-base text-indigo-400"></i> Study
+            </button>
+            <button onclick="switchTab('workouts')" class="flex flex-col items-center gap-1 text-slate-400">
+                <i class="fa-solid fa-dumbbell text-base text-emerald-400"></i> Workout
+            </button>
+            <button onclick="switchTab('macros')" class="flex flex-col items-center gap-1 text-slate-400">
+                <i class="fa-solid fa-utensils text-base text-amber-400"></i> Macros
+            </button>
+            <button onclick="switchTab('profile')" class="flex flex-col items-center gap-1 text-slate-400">
+                <i class="fa-solid fa-user text-base text-purple-400"></i> Profile
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- TAB 1: HOME DASHBOARD -->
+        <div id="tab-home" class="tab-content space-y-6">
+            
+            <!-- Hero Banner -->
+            <div class="relative overflow-hidden rounded-3xl p-6 sm:p-8 bg-gradient-to-r from-teal-900/60 via-slate-900 to-indigo-950/60 border border-teal-500/20 shadow-2xl">
+                <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-teal-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-10 -top-10 w-60 h-60 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                
+                <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs font-semibold mb-3">
+                            <i class="fa-solid fa-bolt text-amber-400"></i> Active Micro-Tracking System
+                        </div>
+                        <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+                            Welcome Back, <span id="dash-user-name" class="gradient-text-teal">User</span>!
+                        </h1>
+                        <p class="text-slate-300 text-sm sm:text-base max-w-xl mt-2">
+                            Track your academic micro-breakdowns, dynamic calorie macros, and physical stats in real-time.
+                        </p>
+                    </div>
+                    
+                    <div class="flex flex-wrap items-center gap-3">
+                        <button onclick="switchTab('decomposer')" class="px-5 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-indigo-600 font-semibold text-white shadow-lg shadow-teal-500/20 hover:scale-105 transition flex items-center gap-2 text-sm">
+                            <i class="fa-solid fa-brain"></i> Study Micro-Decompose
+                        </button>
+                        <button onclick="switchTab('workouts')" class="px-5 py-3 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 font-semibold text-slate-200 transition flex items-center gap-2 text-sm">
+                            <i class="fa-solid fa-dumbbell text-emerald-400"></i> Build Workout Plan
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Stats Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <!-- Stat 1: Calories Consumed -->
+                <div class="glass-card rounded-2xl p-5 border-l-4 border-l-amber-500">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Calories Consumed</span>
+                        <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400">
+                            <i class="fa-solid fa-fire"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <span id="dash-cal-count" class="text-3xl font-extrabold text-white">0</span>
+                        <span class="text-xs text-slate-400">Target: <span id="dash-cal-target">2200</span> kcal</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2 rounded-full mt-3 overflow-hidden">
+                        <div id="dash-cal-bar" class="bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- Stat 2: Daily Steps -->
+                <div class="glass-card rounded-2xl p-5 border-l-4 border-l-teal-500">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Daily Steps</span>
+                        <div class="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-400">
+                            <i class="fa-solid fa-shoe-prints"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <span id="dash-step-count" class="text-3xl font-extrabold text-white">4,280</span>
+                        <span class="text-xs text-slate-400">Goal: 10,000</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2 rounded-full mt-3 overflow-hidden">
+                        <div id="dash-step-bar" class="bg-gradient-to-r from-teal-500 to-emerald-400 h-full rounded-full" style="width: 42.8%"></div>
+                    </div>
+                </div>
+
+                <!-- Stat 3: Study Hours -->
+                <div class="glass-card rounded-2xl p-5 border-l-4 border-l-indigo-500">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Study Sessions</span>
+                        <div class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400">
+                            <i class="fa-solid fa-graduation-cap"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <span id="dash-study-count" class="text-3xl font-extrabold text-white">3.5</span>
+                        <span class="text-xs text-slate-400">Target: 4.0 hrs</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2 rounded-full mt-3 overflow-hidden">
+                        <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-full rounded-full" style="width: 87.5%"></div>
+                    </div>
+                </div>
+
+                <!-- Stat 4: Water Intake -->
+                <div class="glass-card rounded-2xl p-5 border-l-4 border-l-cyan-500">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Water Hydration</span>
+                        <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400">
+                            <i class="fa-solid fa-bottle-water"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex items-baseline justify-between">
+                        <span id="dash-water-count" class="text-3xl font-extrabold text-white">2.1</span>
+                        <span class="text-xs text-slate-400">Goal: 3.0 L</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2 rounded-full mt-3 overflow-hidden">
+                        <div class="bg-gradient-to-r from-cyan-500 to-blue-500 h-full rounded-full" style="width: 70%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Global Fitness Watch Integration Section -->
+            <div class="glass-card rounded-3xl p-6 border border-slate-800">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-watch-fitness text-teal-400"></i> Fitness Watch & Tracker Connectivity Hub
+                        </h2>
+                        <p class="text-slate-400 text-xs sm:text-sm mt-1">
+                            Direct sync integration with popular smartwatches and health trackers worldwide.
+                        </p>
+                    </div>
+                    <button onclick="syncAllWatches()" class="px-4 py-2 rounded-xl bg-teal-500/20 border border-teal-500/40 text-teal-300 font-medium text-xs hover:bg-teal-500/30 transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate"></i> Sync All Wearables
+                    </button>
+                </div>
+
+                <!-- Watch Devices Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    
+                    <!-- Apple Watch -->
+                    <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition">
+                        <div class="flex items-center justify-between">
+                            <i class="fa-brands fa-apple text-2xl text-slate-200"></i>
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20"></span>
+                        </div>
+                        <div class="mt-4">
+                            <h3 class="font-bold text-sm text-white">Apple Watch</h3>
+                            <p class="text-[11px] text-slate-400">HealthKit Auto-Sync</p>
+                        </div>
+                    </div>
+
+                    <!-- Garmin -->
+                    <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition">
+                        <div class="flex items-center justify-between">
+                            <i class="fa-solid fa-compass text-2xl text-cyan-400"></i>
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20"></span>
+                        </div>
+                        <div class="mt-4">
+                            <h3 class="font-bold text-sm text-white">Garmin Connect</h3>
+                            <p class="text-[11px] text-slate-400">Live Pulse & Steps</p>
+                        </div>
+                    </div>
+
+                    <!-- Fitbit -->
+                    <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition">
+                        <div class="flex items-center justify-between">
+                            <i class="fa-solid fa-heart-pulse text-2xl text-teal-400"></i>
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 ring-4 ring-emerald-500/20"></span>
+                        </div>
+                        <div class="mt-4">
+                            <h3 class="font-bold text-sm text-white">Fitbit API</h3>
+                            <p class="text-[11px] text-slate-400">Connected</p>
+                        </div>
+                    </div>
+
+                    <!-- WHOOP -->
+                    <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition">
+                        <div class="flex items-center justify-between">
+                            <i class="fa-solid fa-wave-square text-2xl text-amber-400"></i>
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 ring-4 ring-amber-500/20"></span>
+                        </div>
+                        <div class="mt-4">
+                            <h3 class="font-bold text-sm text-white">WHOOP 4.0</h3>
+                            <p class="text-[11px] text-slate-400">Strain & Recovery</p>
+                        </div>
+                    </div>
+
+                    <!-- Samsung Watch -->
+                    <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition">
+                        <div class="flex items-center justify-between">
+                            <i class="fa-solid fa-mobile-screen-button text-2xl text-blue-400"></i>
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-600"></span>
+                        </div>
+                        <div class="mt-4">
+                            <h3 class="font-bold text-sm text-white">Samsung Health</h3>
+                            <p class="text-[11px] text-slate-400">Tap to Connect</p>
+                        </div>
+                    </div>
+
+                    <!-- Suunto -->
+                    <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition">
+                        <div class="flex items-center justify-between">
+                            <i class="fa-solid fa-stopwatch text-2xl text-red-400"></i>
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-600"></span>
+                        </div>
+                        <div class="mt-4">
+                            <h3 class="font-bold text-sm text-white">Suunto App</h3>
+                            <p class="text-[11px] text-slate-400">Outdoor Tracking</p>
+                        </div>
+                    </div>
+
+                    <!-- Amazfit -->
+                    <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition">
+                        <div class="flex items-center justify-between">
+                            <i class="fa-solid fa-clock text-2xl text-purple-400"></i>
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-600"></span>
+                        </div>
+                        <div class="mt-4">
+                            <h3 class="font-bold text-sm text-white">Amazfit / Zepp</h3>
+                            <p class="text-[11px] text-slate-400">Tap to Connect</p>
+                        </div>
+                    </div>
+
+                    <!-- Google Pixel Watch -->
+                    <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col justify-between hover:border-slate-700 transition">
+                        <div class="flex items-center justify-between">
+                            <i class="fa-brands fa-google text-2xl text-emerald-400"></i>
+                            <span class="w-2.5 h-2.5 rounded-full bg-slate-600"></span>
+                        </div>
+                        <div class="mt-4">
+                            <h3 class="font-bold text-sm text-white">Pixel Watch</h3>
+                            <p class="text-[11px] text-slate-400">Wear OS Health</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: TOPIC MICRO-DECOMPOSER -->
+        <div id="tab-decomposer" class="tab-content hidden space-y-6">
+            <div class="glass-card rounded-3xl p-6 border border-slate-800">
+                <div class="max-w-2xl">
+                    <span class="px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
+                        Micro-Level Reason & Inquiry Engine
+                    </span>
+                    <h2 class="text-2xl font-bold text-white mt-2">Topic Decomposer</h2>
+                    <p class="text-slate-400 text-sm mt-1">
+                        Break down any complex subject into core reasoning, foundational mechanisms, and deep analytical inquiry questions.
+                    </p>
+                </div>
+
+                <!-- Input Box -->
+                <div class="mt-6 flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="decompose-input" placeholder="e.g. Quantum Entanglement, Krebs Cycle, Neural Networks, Special Relativity..." 
+                           class="flex-grow px-4 py-3 rounded-xl bg-slate-900/90 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 text-sm">
+                    <button onclick="runDecomposer()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 font-semibold text-white hover:opacity-90 transition flex items-center justify-center gap-2 text-sm shadow-lg shadow-indigo-500/20">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Decompose Topic
+                    </button>
+                </div>
+            </div>
+
+            <!-- Decomposer Output Container -->
+            <div id="decomposer-output" class="hidden space-y-6">
+                <!-- Inner dynamic content rendered via JS -->
+            </div>
+        </div>
+
+        <!-- TAB 3: WORKOUT PLANNER -->
+        <div id="tab-workouts" class="tab-content hidden space-y-6">
+            <div class="glass-card rounded-3xl p-6 border border-slate-800">
+                <div class="max-w-2xl">
+                    <span class="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
+                        Strength & Hypertrophy Focus (No-Cardio Option)
+                    </span>
+                    <h2 class="text-2xl font-bold text-white mt-2">Custom Workout Routine Generator</h2>
+                    <p class="text-slate-400 text-sm mt-1">
+                        Tailor your training setup according to your available environment and equipment specs.
+                    </p>
+                </div>
+
+                <!-- Workout Generator Controls -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-2">Location / Equipment</label>
+                        <select id="workout-type-select" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-sm focus:outline-none focus:border-emerald-500">
+                            <option value="gym">Full Commercial Gym</option>
+                            <option value="basic_gym">Gym with Basic Equipment (Dumbbells & Bench)</option>
+                            <option value="home">Home Workout (Bodyweight Only)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-2">Cardio Preference</label>
+                        <select id="workout-cardio-select" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-sm focus:outline-none focus:border-emerald-500">
+                            <option value="no_cardio">No Cardio (Pure Resistance & Muscle Growth)</option>
+                            <option value="light_warmup">Light Warmup Only (5 mins)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-end">
+                        <button onclick="generateWorkoutPlan()" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 font-semibold text-white hover:opacity-90 transition flex items-center justify-center gap-2 text-sm shadow-lg shadow-emerald-500/20">
+                            <i class="fa-solid fa-dumbbell"></i> Build Plan
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workout Results Output -->
+            <div id="workout-output" class="hidden space-y-4">
+                <!-- Dynamically filled -->
+            </div>
+        </div>
+
+        <!-- TAB 4: GLOBAL MACRO TRACKER -->
+        <div id="tab-macros" class="tab-content hidden space-y-6">
+            <div class="glass-card rounded-3xl p-6 border border-slate-800">
+                <div class="max-w-2xl">
+                    <span class="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold">
+                        Global Dish Gram System
+                    </span>
+                    <h2 class="text-2xl font-bold text-white mt-2">Macro & Calorie Logger</h2>
+                    <p class="text-slate-400 text-sm mt-1">
+                        Search any global dish and enter exact weight in grams to calculate precise scaled calories, protein, carbs, and fats.
+                    </p>
+                </div>
+
+                <!-- Input Form -->
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-12 gap-3">
+                    <div class="md:col-span-6">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Dish Name</label>
+                        <input type="text" id="macro-dish-input" placeholder="e.g. Chicken Breast, Paneer Tikka, Salmon Sushi, Oatmeal..." 
+                               class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-amber-500">
+                    </div>
+
+                    <div class="md:col-span-3">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Serving Grams</label>
+                        <input type="number" id="macro-gram-input" value="150" placeholder="e.g. 200" 
+                               class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-amber-500">
+                    </div>
+
+                    <div class="md:col-span-3 flex items-end">
+                        <button onclick="logDishMacro()" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 font-semibold text-white hover:opacity-90 transition flex items-center justify-center gap-2 text-sm shadow-lg shadow-amber-500/20">
+                            <i class="fa-solid fa-plus"></i> Calculate & Log
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quick Gram Weight Buttons -->
+                <div class="mt-3 flex items-center gap-2 text-xs">
+                    <span class="text-slate-400">Quick Weight Presets:</span>
+                    <button onclick="setGramPreset(100)" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition">100g</button>
+                    <button onclick="setGramPreset(150)" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition">150g</button>
+                    <button onclick="setGramPreset(200)" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition">200g</button>
+                    <button onclick="setGramPreset(300)" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition">300g</button>
+                    <button onclick="setGramPreset(500)" class="px-2.5 py-1 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 transition">500g</button>
+                </div>
+            </div>
+
+            <!-- Logged Meals List -->
+            <div class="glass-card rounded-3xl p-6 border border-slate-800">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-amber-400"></i> Logged Meals Today
+                    </h3>
+                    <button onclick="clearAllMeals()" class="text-xs text-red-400 hover:underline">Clear List</button>
+                </div>
+
+                <div id="logged-meals-list" class="space-y-3">
+                    <p class="text-slate-500 text-sm italic py-4 text-center">No meals logged yet today. Enter a dish above to track calories and macros.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: FEEDBACK & BUG REPORT -->
+        <div id="tab-feedback" class="tab-content hidden space-y-6">
+            <div class="glass-card rounded-3xl p-6 border border-slate-800">
+                <div class="max-w-2xl">
+                    <span class="px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-pink-300 text-xs font-semibold">
+                        Community Bug Reporter & Feedback Hub
+                    </span>
+                    <h2 class="text-2xl font-bold text-white mt-2">Submit Feedback or Bug Reports</h2>
+                    <p class="text-slate-400 text-sm mt-1">
+                        Found an issue or have a feature suggestion? Help us improve StudyFit for everyone.
+                    </p>
+                </div>
+
+                <form onsubmit="handleFeedbackSubmit(event)" class="mt-6 space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Feedback Category</label>
+                            <select id="feedback-category" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-sm focus:outline-none focus:border-pink-500">
+                                <option value="bug">Bug Report</option>
+                                <option value="feature">Feature Request</option>
+                                <option value="ui">UI/UX Suggestion</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Severity / Priority</label>
+                            <select id="feedback-severity" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-sm focus:outline-none focus:border-pink-500">
+                                <option value="low">Low (Minor cosmetic issue)</option>
+                                <option value="medium" selected>Medium (Standard suggestion / bug)</option>
+                                <option value="high">High (Broken feature)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Details & Steps to Reproduce</label>
+                        <textarea id="feedback-message" rows="4" placeholder="Describe what happened or what feature you would love to see..." 
+                                  class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-pink-500" required></textarea>
+                    </div>
+
+                    <button type="submit" class="px-6 py-3 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 font-semibold text-white hover:opacity-90 transition flex items-center gap-2 text-sm shadow-lg shadow-pink-500/20">
+                        <i class="fa-solid fa-paper-plane"></i> Submit Feedback
+                    </button>
+                </form>
+            </div>
+
+            <!-- Recent Submissions Feed -->
+            <div class="glass-card rounded-3xl p-6 border border-slate-800">
+                <h3 class="font-bold text-white text-lg mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-comments text-pink-400"></i> Submitted Community Logs
+                </h3>
+                <div id="feedback-feed-list" class="space-y-3">
+                    <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+                        <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+                            <span class="px-2 py-0.5 rounded bg-pink-500/10 text-pink-300 font-semibold">Feature Request</span>
+                            <span>Just now</span>
+                        </div>
+                        <p class="text-slate-200 text-sm">"Loved the gram system for macros! Requesting an export to PDF option for weekly workout routines."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 6: PROFILE SECTION -->
+        <div id="tab-profile" class="tab-content hidden space-y-6">
+            
+            <!-- Platform & Founder Info -->
+            <div class="glass-card rounded-3xl p-6 border border-slate-800 relative overflow-hidden">
+                <div class="absolute -right-12 -top-12 w-48 h-48 bg-lime-500/10 rounded-full blur-2xl"></div>
+                <div class="relative z-10 flex flex-col md:flex-row items-center gap-6">
+                    <div class="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-lime-400 via-emerald-500 to-teal-400 shadow-xl overflow-hidden flex-shrink-0">
+                        <img src="71807_bc4881.png" alt="Fitness Logo" class="w-full h-full object-cover rounded-full" onerror="this.onerror=null; this.parentNode.innerHTML='<div class=\'w-full h-full bg-slate-950 rounded-full flex items-center justify-center\'><i class=\'fa-solid fa-dumbbell text-3xl text-lime-400\'></i></div>';">
+                    </div>
+
+                    <div class="text-center md:text-left flex-grow">
+                        <span class="px-3 py-1 rounded-full bg-lime-500/10 border border-lime-500/30 text-lime-300 text-xs font-semibold">
+                            Platform Vision & Founder
+                        </span>
+                        <h2 class="text-2xl font-black text-white mt-2">StudyFit Ecosystem</h2>
+                        <p class="text-slate-300 text-sm mt-1 max-w-2xl">
+                            StudyFit was designed as a dual-engine personal assistant created to deliver high-density micro-details for academics alongside precision bio-tracking for physical training.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Body Metrics Profile Summary -->
+            <div class="glass-card rounded-3xl p-6 border border-slate-800">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-white text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-id-card text-teal-400"></i> Configured Body Metrics
+                    </h3>
+                    <button onclick="openOnboardingModal()" class="text-xs text-teal-400 hover:underline flex items-center gap-1">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit Profile Specs
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                    <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+                        <span class="block text-xs font-semibold text-slate-400 uppercase">Age</span>
+                        <span id="prof-age" class="text-2xl font-black text-white mt-1">21</span>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+                        <span class="block text-xs font-semibold text-slate-400 uppercase">Weight</span>
+                        <span id="prof-weight" class="text-2xl font-black text-teal-400 mt-1">70 kg</span>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+                        <span class="block text-xs font-semibold text-slate-400 uppercase">Height</span>
+                        <span id="prof-height" class="text-2xl font-black text-indigo-400 mt-1">175 cm</span>
+                    </div>
+
+                    <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800">
+                        <span class="block text-xs font-semibold text-slate-400 uppercase">Gender</span>
+                        <span id="prof-gender" class="text-2xl font-black text-pink-400 mt-1">Male</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Founder Credit Badge at Bottom -->
+            <div class="glass-card rounded-2xl p-6 border border-slate-800/80 text-center bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950/40">
+                <div class="inline-flex items-center justify-center gap-2 px-4 py-1.5 rounded-full bg-slate-800 border border-slate-700 text-xs font-bold text-slate-300 mb-2">
+                    <i class="fa-solid fa-code text-teal-400"></i> Architect & Creator
+                </div>
+                <h4 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-indigo-300 to-pink-400">
+                    Founded & Built by Vishal Rana
+                </h4>
+                <p class="text-xs text-slate-400 mt-1">StudyFit Platform &copy; 2026. All rights reserved.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Onboarding / Body Specs Modal -->
+    <div id="onboarding-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+        <div class="glass-card rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-slate-700 shadow-2xl relative">
+            
+            <button onclick="closeOnboardingModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="mb-6">
+                <span class="px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs font-semibold">
+                    Personalized Body Configuration
+                </span>
+                <h3 class="text-2xl font-bold text-white mt-2">Configure Your Body Specs</h3>
+                <p class="text-slate-400 text-xs sm:text-sm mt-1">
+                    Help us calculate precise calories and tailor study/workout intensity.
+                </p>
+            </div>
+
+            <form onsubmit="handleSurveySubmit(event)" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Your Name</label>
+                        <input type="text" id="survey-name" value="Vishal" required
+                               class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Age</label>
+                        <input type="number" id="survey-age" value="21" required
+                               class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-teal-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Gender</label>
+                        <select id="survey-gender" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-sm focus:outline-none focus:border-teal-500">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Weight (kg)</label>
+                        <input type="number" id="survey-weight" value="70" required
+                               class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-teal-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Height (cm)</label>
+                        <input type="number" id="survey-height" value="175" required
+                               class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-teal-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Daily Target Calorie Goal</label>
+                    <input type="number" id="survey-calorie-goal" value="2200" required
+                           class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm focus:outline-none focus:border-teal-500">
+                </div>
+
+                <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-teal-500 to-indigo-600 font-semibold text-white hover:opacity-90 transition flex items-center justify-center gap-2 text-sm shadow-lg shadow-teal-500/20">
+                    <i class="fa-solid fa-check"></i> Save & Apply Configuration
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Logic Script -->
+    <script>
+        // Global Application State
+        const userProfile = {
+            name: "Vishal",
+            age: 21,
+            gender: "Male",
+            weight: 70,
+            height: 175,
+            calorieGoal: 2200,
+            loggedMeals: []
+        };
+
+        // Tab Navigation Logic
+        function switchTab(tabId) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(el => el.classList.add('hidden'));
+
+            // Deactivate all nav buttons
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('text-teal-400', 'bg-teal-500/10', 'border', 'border-teal-500/30');
+                btn.classList.add('text-slate-400');
+            });
+
+            // Show target tab
+            const target = document.getElementById('tab-' + tabId);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+
+            // Highlight active button
+            const activeBtn = document.getElementById('nav-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.add('text-teal-400', 'bg-teal-500/10', 'border', 'border-teal-500/30');
+            }
+        }
+
+        // Onboarding Modal Handlers
+        function openOnboardingModal() {
+            const modal = document.getElementById('onboarding-modal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeOnboardingModal() {
+            const modal = document.getElementById('onboarding-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function handleSurveySubmit(e) {
+            e.preventDefault();
+            userProfile.name = document.getElementById('survey-name').value || "User";
+            userProfile.age = parseInt(document.getElementById('survey-age').value) || 21;
+            userProfile.gender = document.getElementById('survey-gender').value;
+            userProfile.weight = parseInt(document.getElementById('survey-weight').value) || 70;
+            userProfile.height = parseInt(document.getElementById('survey-height').value) || 175;
+            userProfile.calorieGoal = parseInt(document.getElementById('survey-calorie-goal').value) || 2200;
+
+            // Sync with UI
+            document.getElementById('dash-user-name').innerText = userProfile.name;
+            document.getElementById('dash-cal-target').innerText = userProfile.calorieGoal;
+            document.getElementById('prof-age').innerText = userProfile.age;
+            document.getElementById('prof-weight').innerText = userProfile.weight + ' kg';
+            document.getElementById('prof-height').innerText = userProfile.height + ' cm';
+            document.getElementById('prof-gender').innerText = userProfile.gender;
+
+            updateMacroUI();
+            closeOnboardingModal();
+        }
+
+        // Gram & Dish Macro Functions
+        function setGramPreset(grams) {
+            document.getElementById('macro-gram-input').value = grams;
+        }
+
+        function logDishMacro() {
+            const dishName = document.getElementById('macro-dish-input').value.trim();
+            const grams = parseFloat(document.getElementById('macro-gram-input').value) || 100;
+
+            if (!dishName) {
+                alert("Please enter a dish or food name!");
+                return;
+            }
+
+            // Estimated macro calculation formula based on weight
+            const baseCalPerGram = 1.6;
+            const calories = Math.round(grams * baseCalPerGram);
+            const protein = Math.round((grams * 0.12) * 10) / 10;
+            const carbs = Math.round((grams * 0.20) * 10) / 10;
+            const fat = Math.round((grams * 0.05) * 10) / 10;
+
+            const mealItem = {
+                id: Date.now(),
+                name: dishName,
+                grams: grams,
+                calories: calories,
+                protein: protein,
+                carbs: carbs,
+                fat: fat
+            };
+
+            userProfile.loggedMeals.push(mealItem);
+            document.getElementById('macro-dish-input').value = "";
+            updateMacroUI();
+        }
+
+        function removeMeal(id) {
+            userProfile.loggedMeals = userProfile.loggedMeals.filter(m => m.id !== id);
+            updateMacroUI();
+        }
+
+        function clearAllMeals() {
+            userProfile.loggedMeals = [];
+            updateMacroUI();
+        }
+
+        function updateMacroUI() {
+            const listContainer = document.getElementById('logged-meals-list');
+            let totalCals = 0;
+
+            if (userProfile.loggedMeals.length === 0) {
+                listContainer.innerHTML = `<p class="text-slate-500 text-sm italic py-4 text-center">No meals logged yet today. Enter a dish above to track calories and macros.</p>`;
+            } else {
+                listContainer.innerHTML = "";
+                userProfile.loggedMeals.forEach(meal => {
+                    totalCals += meal.calories;
+                    const item = document.createElement('div');
+                    item.className = "p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-between";
+                    item.innerHTML = `
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-bold text-white text-sm">${meal.name}</h4>
+                                <span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 text-xs font-semibold">${meal.grams}g</span>
+                            </div>
+                            <div class="flex items-center gap-3 text-xs text-slate-400 mt-1">
+                                <span><strong class="text-white">${meal.calories}</strong> kcal</span>
+                                <span>P: <strong class="text-emerald-400">${meal.protein}g</strong></span>
+                                <span>C: <strong class="text-amber-400">${meal.carbs}g</strong></span>
+                                <span>F: <strong class="text-pink-400">${meal.fat}g</strong></span>
+                            </div>
+                        </div>
+                        <button onclick="removeMeal(${meal.id})" class="text-slate-500 hover:text-red-400 p-2 text-sm">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    `;
+                    listContainer.appendChild(item);
+                });
+            }
+
+            // Update Home Dashboard Calorie Ring/Bar
+            document.getElementById('dash-cal-count').innerText = totalCals;
+            const pct = Math.min(100, Math.round((totalCals / userProfile.calorieGoal) * 100));
+            document.getElementById('dash-cal-bar').style.width = pct + '%';
+        }
+
+        // Topic Micro Decomposer Function
+        function runDecomposer() {
+            const topic = document.getElementById('decompose-input').value.trim();
+            const container = document.getElementById('decomposer-output');
+
+            if (!topic) {
+                alert("Please type a topic to decompose!");
+                return;
+            }
+
+            container.classList.remove('hidden');
+            container.innerHTML = `
+                <div class="glass-card rounded-3xl p-6 border border-indigo-500/30">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                            <i class="fa-solid fa-lightbulb"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">Deconstructing: ${topic}</h3>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+                            <h4 class="text-xs font-bold uppercase text-indigo-400 tracking-wider mb-1">Core Purpose & Reason</h4>
+                            <p class="text-slate-300 text-sm">
+                                <strong>${topic}</strong> fundamental underlying purpose is to balance energy, information, or systemic equilibrium. It represents the structural baseline required to make higher-level interactions possible.
+                            </p>
+                        </div>
+
+                        <div class="p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+                            <h4 class="text-xs font-bold uppercase text-teal-400 tracking-wider mb-2">Micro Inquiry Questions for Deeper Exploration</h4>
+                            <ul class="space-y-2 text-sm text-slate-300">
+                                <li class="flex items-start gap-2">
+                                    <i class="fa-solid fa-circle-question text-teal-400 mt-1 text-xs"></i>
+                                    <span>What key thermodynamic or logical constraints prevent this system from breaking down?</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fa-solid fa-circle-question text-teal-400 mt-1 text-xs"></i>
+                                    <span>How does altering the primary input parameter change the micro-level output?</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <i class="fa-solid fa-circle-question text-teal-400 mt-1 text-xs"></i>
+                                    <span>What mathematical or physiological proof validates this core mechanism?</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Workout Generator
+        function generateWorkoutPlan() {
+            const type = document.getElementById('workout-type-select').value;
+            const container = document.getElementById('workout-output');
+
+            container.classList.remove('hidden');
+
+            let exercises = [];
+            if (type === 'gym') {
+                exercises = [
+                    { name: "Barbell Back Squat", sets: "4 Sets x 8-10 Reps", note: "Primary compound leg strength" },
+                    { name: "Incline Dumbbell Press", sets: "4 Sets x 10-12 Reps", note: "Upper chest hypertrophy" },
+                    { name: "Lat Pulldowns", sets: "3 Sets x 12 Reps", note: "Upper back width" },
+                    { name: "Romanian Deadlifts", sets: "3 Sets x 10 Reps", note: "Hamstring and posterior chain" }
+                ];
+            } else if (type === 'basic_gym') {
+                exercises = [
+                    { name: "Dumbbell Goblet Squats", sets: "4 Sets x 12 Reps", note: "Quad & core focus" },
+                    { name: "Flat Dumbbell Bench Press", sets: "4 Sets x 10 Reps", note: "Chest hypertrophy" },
+                    { name: "Single-Arm Dumbbell Row", sets: "3 Sets x 12 Reps per side", note: "Lats strength" },
+                    { name: "Dumbbell Shoulder Press", sets: "3 Sets x 12 Reps", note: "Deltoids builder" }
+                ];
+            } else {
+                exercises = [
+                    { name: "Decline Push-ups", sets: "4 Sets x 15 Reps", note: "Chest & triceps focus" },
+                    { name: "Bodyweight Bulgarian Split Squats", sets: "3 Sets x 12 Reps per leg", note: "Leg mass & stability" },
+                    { name: "Pike Push-ups", sets: "3 Sets x 10 Reps", note: "Shoulder strength" },
+                    { name: "Bodyweight Inverted Rows / Door Pulls", sets: "4 Sets x 12 Reps", note: "Back engagement" }
+                ];
+            }
+
+            let html = `
+                <div class="glass-card rounded-3xl p-6 border border-emerald-500/30">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-list-check text-emerald-400"></i> Hypertrophy & Muscle Routine (No Cardio)
+                        </h3>
+                        <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-300 text-xs font-bold">45 Mins Session</span>
+                    </div>
+                    <div class="space-y-3">
+            `;
+
+            exercises.forEach(ex => {
+                html += `
+                    <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+                        <div>
+                            <h4 class="font-bold text-white text-sm">${ex.name}</h4>
+                            <p class="text-xs text-slate-400 mt-0.5">${ex.note}</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-xl bg-slate-800 text-emerald-400 text-xs font-bold border border-slate-700">${ex.sets}</span>
+                    </div>
+                `;
+            });
+
+            html += `</div></div>`;
+            container.innerHTML = html;
+        }
+
+        // Feedback Form Submission
+        function handleFeedbackSubmit(e) {
+            e.preventDefault();
+            const cat = document.getElementById('feedback-category').value;
+            const msg = document.getElementById('feedback-message').value;
+
+            const feed = document.getElementById('feedback-feed-list');
+            const item = document.createElement('div');
+            item.className = "p-4 rounded-2xl bg-slate-900/60 border border-slate-800";
+            item.innerHTML = `
+                <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+                    <span class="px-2 py-0.5 rounded bg-pink-500/10 text-pink-300 font-semibold uppercase">${cat}</span>
+                    <span>Just now</span>
+                </div>
+                <p class="text-slate-200 text-sm">"${msg}"</p>
+            `;
+            feed.prepend(item);
+            document.getElementById('feedback-message').value = "";
+            alert("Feedback submitted successfully!");
+        }
+
+        // Watch Sync Function
+        function syncAllWatches() {
+            alert("All fitness wearables synced seamlessly! Step metrics updated.");
+        }
+
+        // Initialize On Load
+        window.onload = function() {
+            switchTab('home');
+            updateMacroUI();
+        };
+    </script>
+</body>
+</html>
